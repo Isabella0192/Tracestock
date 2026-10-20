@@ -15,6 +15,7 @@ $producto = [
     'precio' => '',
     'stock_actual' => '0',
     'stock_minimo' => '5',
+    'imagen' => '',
     'id_categoria' => '',
 ];
 
@@ -39,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stockActual = (int) ($_POST['stock_actual'] ?? 0);
     $stockMinimo = (int) ($_POST['stock_minimo'] ?? 0);
     $idCategoria = (int) ($_POST['id_categoria'] ?? 0);
+    $imagen      = basename(trim($_POST['imagen'] ?? ''));
 
     $producto = [
         'codigo' => $codigo,
@@ -47,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'precio' => $precio,
         'stock_actual' => $stockActual,
         'stock_minimo' => $stockMinimo,
+        'imagen' => $imagen,
         'id_categoria' => $idCategoria,
     ];
 
@@ -62,26 +65,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Debes elegir una categoría.';
     } else {
         try {
+            $imagenSql = $imagen !== '' ? $imagen : '';
+
             if ($editando) {
                 $stmt = $mysqli->prepare(
                     'UPDATE producto
-                     SET codigo=?, nombre=?, descripcion=?, precio=?, stock_actual=?, stock_minimo=?, id_categoria=?
+                     SET codigo=?, nombre=?, descripcion=?, precio=?, stock_actual=?, stock_minimo=?, imagen=?, id_categoria=?
                      WHERE id_producto=?'
                 );
                 $stmt->bind_param(
-                    'sssdiiii',
-                    $codigo, $nombre, $descripcion, $precio, $stockActual, $stockMinimo, $idCategoria, $id
+                    'sssdiisii',
+                    $codigo, $nombre, $descripcion, $precio, $stockActual, $stockMinimo, $imagenSql, $idCategoria, $id
                 );
                 $stmt->execute();
                 guardarMensaje('Producto actualizado.');
             } else {
                 $stmt = $mysqli->prepare(
-                    'INSERT INTO producto (codigo, nombre, descripcion, precio, stock_actual, stock_minimo, id_categoria)
-                     VALUES (?, ?, ?, ?, ?, ?, ?)'
+                    'INSERT INTO producto (codigo, nombre, descripcion, precio, stock_actual, stock_minimo, imagen, id_categoria)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
                 );
                 $stmt->bind_param(
-                    'sssdiii',
-                    $codigo, $nombre, $descripcion, $precio, $stockActual, $stockMinimo, $idCategoria
+                    'sssdiisi',
+                    $codigo, $nombre, $descripcion, $precio, $stockActual, $stockMinimo, $imagenSql, $idCategoria
                 );
                 $stmt->execute();
                 guardarMensaje('Producto creado.');
@@ -97,6 +102,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $categorias = $mysqli->query('SELECT id_categoria, nombre FROM categoria ORDER BY nombre')->fetch_all(MYSQLI_ASSOC);
+
+$imagenesDisponibles = [];
+foreach (glob(__DIR__ . '/img/prod-*.jpg') ?: [] as $rutaImg) {
+    $imagenesDisponibles[] = basename($rutaImg);
+}
+sort($imagenesDisponibles);
 
 require __DIR__ . '/includes/layout_inicio.php';
 ?>
@@ -160,6 +171,18 @@ require __DIR__ . '/includes/layout_inicio.php';
         <label for="stock_minimo">Stock mínimo</label>
         <input id="stock_minimo" name="stock_minimo" type="number" min="0" required
                value="<?= e((string) $producto['stock_minimo']) ?>">
+      </div>
+      <div class="form-span">
+        <label for="imagen">Imagen del producto</label>
+        <select id="imagen" name="imagen">
+          <option value="">Sin imagen específica</option>
+          <?php foreach ($imagenesDisponibles as $imgArchivo): ?>
+            <option value="<?= e($imgArchivo) ?>"
+              <?= ($producto['imagen'] ?? '') === $imgArchivo ? 'selected' : '' ?>>
+              <?= e($imgArchivo) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
       </div>
     </div>
 

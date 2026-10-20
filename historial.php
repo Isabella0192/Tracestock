@@ -10,7 +10,7 @@ $tipo   = $_GET['tipo'] ?? '';
 $buscar = trim($_GET['q'] ?? '');
 
 $sql = 'SELECT m.fecha, m.tipo, m.cantidad, m.motivo,
-               p.nombre AS producto, p.codigo,
+               p.nombre AS producto, p.codigo, p.imagen,
                u.nombre AS usuario
         FROM movimiento m
         INNER JOIN producto p ON p.id_producto = m.id_producto
@@ -46,7 +46,7 @@ require __DIR__ . '/includes/layout_inicio.php';
 <div class="page-heading">
   <div>
     <h1>Historial de movimientos</h1>
-    <p>Consulta las entradas y salidas registradas. Los movimientos no se editan ni se borran.</p>
+    <p>Entradas y salidas son inmutables: no se editan ni se borran.</p>
   </div>
   <a class="btn btn-cyan" href="movimiento.php">＋ Registrar movimiento</a>
 </div>
@@ -61,7 +61,7 @@ require __DIR__ . '/includes/layout_inicio.php';
     <input name="q" placeholder="Buscar producto..." value="<?= e($buscar) ?>">
     <button class="btn btn-outline" type="submit">Filtrar</button>
   </form>
-  <div class="table-wrap">
+  <div class="table-wrap table-desktop">
     <table>
       <thead>
         <tr>
@@ -80,7 +80,12 @@ require __DIR__ . '/includes/layout_inicio.php';
           <?php foreach ($movimientos as $m): ?>
             <tr>
               <td><?= e(formatearFecha($m['fecha'])) ?></td>
-              <td class="product-cell"><?= e($m['codigo'] . ' · ' . $m['producto']) ?></td>
+              <td class="product-cell">
+                <div class="product-with-img">
+                  <img class="product-thumb" src="<?= e(imagenProducto($m['imagen'] ?? null)) ?>" alt="">
+                  <span><?= e($m['codigo'] . ' · ' . $m['producto']) ?></span>
+                </div>
+              </td>
               <td><?= badgeTipo($m['tipo']) ?></td>
               <td><?= (int) $m['cantidad'] ?></td>
               <td><?= e($m['usuario']) ?></td>
@@ -90,6 +95,30 @@ require __DIR__ . '/includes/layout_inicio.php';
         <?php endif; ?>
       </tbody>
     </table>
+  </div>
+  <div class="mobile-cards">
+    <?php if (!$movimientos): ?>
+      <p class="empty">No hay movimientos para mostrar.</p>
+    <?php else: ?>
+      <?php foreach ($movimientos as $m): ?>
+        <article class="m-card">
+          <div class="m-card-head">
+            <div class="m-card-title">
+              <img class="product-thumb" src="<?= e(imagenProducto($m['imagen'] ?? null)) ?>" alt="">
+              <span><?= e($m['producto']) ?></span>
+            </div>
+            <?= badgeTipo($m['tipo']) ?>
+          </div>
+          <div class="m-card-meta">
+            <div class="m-row"><span>Fecha</span><span><?= e(formatearFecha($m['fecha'])) ?></span></div>
+            <div class="m-row"><span>Código</span><span><?= e($m['codigo']) ?></span></div>
+            <div class="m-row"><span>Cantidad</span><span><?= (int) $m['cantidad'] ?></span></div>
+            <div class="m-row"><span>Usuario</span><span><?= e($m['usuario']) ?></span></div>
+            <div class="m-row"><span>Nota</span><span><?= e($m['motivo'] ?: '—') ?></span></div>
+          </div>
+        </article>
+      <?php endforeach; ?>
+    <?php endif; ?>
   </div>
 </div>
 

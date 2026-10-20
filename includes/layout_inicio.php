@@ -9,8 +9,10 @@ if (!isset($tituloPagina)) {
     $tituloPagina = 'Inicio';
 }
 $usuarioNombre = $_SESSION['nombre'] ?? 'Admin';
+$usuarioRol = $_SESSION['rol'] ?? 'administrador';
 $inicial = mb_strtoupper(mb_substr($usuarioNombre, 0, 1));
 $flash = obtenerMensaje();
+$rolLabel = $usuarioRol === 'operario' ? 'Operario' : 'Administrador';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -18,19 +20,17 @@ $flash = obtenerMensaje();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= e($tituloPagina) ?> | TraceStock</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
+<div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
 <div class="app-shell">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <a class="logo side-logo" href="dashboard.php">
       <span class="logo-icon">▱</span>Trace<span class="cyan">Stock</span>
     </a>
-    <p class="menu-label">MENÚ PRINCIPAL</p>
-    <nav class="side-nav">
+    <p class="menu-label">Menú principal</p>
+    <nav class="side-nav" aria-label="Navegación del panel">
       <a class="side-link <?= claseActiva('dashboard.php') ?>" href="dashboard.php"><span>⌂</span>Inicio</a>
       <a class="side-link <?= claseActiva('productos.php') ?> <?= claseActiva('producto_form.php') ?>" href="productos.php"><span>▦</span>Productos</a>
       <a class="side-link <?= claseActiva('categorias.php') ?>" href="categorias.php"><span>◇</span>Categorías</a>
@@ -41,8 +41,8 @@ $flash = obtenerMensaje();
     <div class="sidebar-bottom">
       <div class="sidebar-tip">
         <span>✦</span>
-        <strong>Control sencillo</strong>
-        <small>Todo tu inventario en un solo lugar.</small>
+        <strong>Bodega bajo control</strong>
+        <small>Alertas de mínimo, entradas y salidas en una sola vista.</small>
       </div>
       <a class="side-link logout" href="logout.php"><span>↪</span>Salir</a>
     </div>
@@ -50,20 +50,23 @@ $flash = obtenerMensaje();
 
   <main class="main-area">
     <header class="topbar">
-      <div>
-        <span class="topbar-label">SISTEMA DE INVENTARIO</span>
-        <h2><?= e($tituloPagina) ?></h2>
+      <div class="topbar-left">
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar">☰</button>
+        <div>
+          <span class="topbar-label">Sistema de inventario</span>
+          <h2><?= e($tituloPagina) ?></h2>
+        </div>
       </div>
       <div class="user-chip">
-        <div class="avatar"><?= e($inicial) ?></div>
+        <div class="avatar" aria-hidden="true"><?= e($inicial) ?></div>
         <div>
           <strong><?= e($usuarioNombre) ?></strong>
-          <small>Administrador</small>
+          <small><?= e($rolLabel) ?></small>
         </div>
       </div>
     </header>
 
     <div class="content-area">
       <?php if ($flash): ?>
-        <div class="flash flash-<?= e($flash['tipo']) ?>"><?= e($flash['texto']) ?></div>
+        <div class="flash flash-<?= e($flash['tipo']) ?>" role="status"><?= e($flash['texto']) ?></div>
       <?php endif; ?>

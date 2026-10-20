@@ -107,8 +107,9 @@ require __DIR__ . '/includes/layout_inicio.php';
 <div class="page-heading">
   <div>
     <h1>Registrar movimiento</h1>
-    <p>Registra una entrada o salida y actualiza las existencias.</p>
+    <p>Entrada suma stock · Salida resta · Nunca permite negativos.</p>
   </div>
+  <a class="btn btn-outline" href="historial.php">Ver historial</a>
 </div>
 
 <div class="section-card form-card movement-form">

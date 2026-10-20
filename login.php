@@ -49,9 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar sesión | TraceStock</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
@@ -61,11 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-brand">
       <span class="brand-symbol">▱</span>
       <h1>Trace<span class="cyan">Stock</span></h1>
-      <p>Entradas y salidas de inventario.</p>
+      <p>Acceso al panel de inventario.</p>
     </div>
     <form method="post" autocomplete="on">
       <?php if ($error): ?>
-        <p class="form-error"><?= e($error) ?></p>
+        <p class="form-error" role="alert"><?= e($error) ?></p>
       <?php endif; ?>
       <label for="correo">Correo</label>
       <input id="correo" name="correo" type="email" placeholder="admin@tracestock.com"
@@ -74,7 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <input id="clave" name="clave" type="password" placeholder="Mínimo 6 caracteres"
              autocomplete="current-password" required minlength="6">
       <button class="btn btn-cyan full" type="submit">Iniciar sesión <span>→</span></button>
-      <p class="login-hint">Demo: <strong>admin@tracestock.com</strong> / <strong>admin123</strong></p>
+      <p class="login-hint">
+        Admin: <strong>admin@tracestock.com</strong> / <strong>admin123</strong><br>
+        Operario: <strong>operario@tracestock.com</strong> / <strong>operario123</strong>
+      </p>
     </form>
   </div>
 </section>

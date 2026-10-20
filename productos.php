@@ -6,7 +6,6 @@ requiereLogin();
 
 $tituloPagina = 'Productos';
 
-// Eliminar producto (RESTRICT si tiene movimientos)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'eliminar') {
     $id = (int) ($_POST['id_producto'] ?? 0);
     $check = $mysqli->prepare('SELECT COUNT(*) AS c FROM movimiento WHERE id_producto = ?');
@@ -65,7 +64,7 @@ require __DIR__ . '/includes/layout_inicio.php';
 <div class="page-heading">
   <div>
     <h1>Productos</h1>
-    <p>Consulta y administra los productos del inventario.</p>
+    <p>Catálogo con foto, stock y estado de alerta.</p>
   </div>
   <a class="btn btn-cyan" href="producto_form.php">＋ Nuevo producto</a>
 </div>
@@ -83,46 +82,37 @@ require __DIR__ . '/includes/layout_inicio.php';
     </select>
     <button class="btn btn-outline" type="submit">Buscar</button>
   </form>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Código</th>
-          <th>Producto</th>
-          <th>Categoría</th>
-          <th>Precio</th>
-          <th>Stock</th>
-          <th>Mínimo</th>
-          <th>Estado</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php if (!$productos): ?>
-          <tr><td colspan="8" class="empty">No se encontraron productos.</td></tr>
-        <?php else: ?>
-          <?php foreach ($productos as $p): ?>
-            <tr>
-              <td><?= e($p['codigo']) ?></td>
-              <td class="product-cell"><?= e($p['nombre']) ?></td>
-              <td><?= e($p['categoria']) ?></td>
-              <td>$<?= number_format((float) $p['precio'], 0, ',', '.') ?></td>
-              <td><?= (int) $p['stock_actual'] ?></td>
-              <td><?= (int) $p['stock_minimo'] ?></td>
-              <td><?= badgeStock((int) $p['stock_actual'], (int) $p['stock_minimo']) ?></td>
-              <td class="acciones-cell">
-                <a class="small-action" href="producto_form.php?id=<?= (int) $p['id_producto'] ?>">Editar</a>
-                <form method="post" style="display:inline" onsubmit="return confirm('¿Eliminar este producto?');">
-                  <input type="hidden" name="accion" value="eliminar">
-                  <input type="hidden" name="id_producto" value="<?= (int) $p['id_producto'] ?>">
-                  <button type="submit" class="small-action danger-action">Eliminar</button>
-                </form>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-        <?php endif; ?>
-      </tbody>
-    </table>
+
+  <div class="product-grid force-grid">
+    <?php if (!$productos): ?>
+      <p class="empty" style="grid-column:1/-1">No se encontraron productos.</p>
+    <?php else: ?>
+      <?php foreach ($productos as $p): ?>
+        <article class="product-card">
+          <div class="product-card-img">
+            <img src="<?= e(imagenProducto($p['imagen'] ?? null)) ?>" alt="<?= e($p['nombre']) ?>" loading="lazy">
+          </div>
+          <div class="product-card-body">
+            <span class="product-card-code"><?= e($p['codigo']) ?></span>
+            <h3><?= e($p['nombre']) ?></h3>
+            <div class="product-card-meta">
+              <span><?= e($p['categoria']) ?></span>
+              <span><?= formatearPrecio((float) $p['precio']) ?></span>
+              <span>Stock <?= (int) $p['stock_actual'] ?> / mín. <?= (int) $p['stock_minimo'] ?></span>
+            </div>
+            <?= badgeStock((int) $p['stock_actual'], (int) $p['stock_minimo']) ?>
+            <div class="product-card-actions">
+              <a class="small-action" href="producto_form.php?id=<?= (int) $p['id_producto'] ?>">Editar</a>
+              <form method="post" onsubmit="return confirm('¿Eliminar este producto?');">
+                <input type="hidden" name="accion" value="eliminar">
+                <input type="hidden" name="id_producto" value="<?= (int) $p['id_producto'] ?>">
+                <button type="submit" class="small-action danger-action">Eliminar</button>
+              </form>
+            </div>
+          </div>
+        </article>
+      <?php endforeach; ?>
+    <?php endif; ?>
   </div>
 </div>
 

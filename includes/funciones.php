@@ -78,3 +78,18 @@ function badgeTipo(string $tipo): string
     $texto = $tipo === 'entrada' ? 'Entrada' : 'Salida';
     return '<span class="badge ' . $clase . '">' . e($texto) . '</span>';
 }
+
+/** Ruta pública de imagen de producto (fallback a placeholder). */
+function imagenProducto(?string $archivo): string
+{
+    $archivo = trim((string) $archivo);
+    if ($archivo !== '' && is_file(__DIR__ . '/../img/' . basename($archivo))) {
+        return 'img/' . basename($archivo);
+    }
+    return 'img/prod-chazo.jpg';
+}
+
+function formatearPrecio(float $precio): string
+{
+    return '$' . number_format($precio, 0, ',', '.');
+}
